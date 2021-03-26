@@ -12,6 +12,8 @@ import (
 
 // Config holds the configuration for the middleware
 type Config struct {
+	Enforcer      *casbin.Enforcer
+
 	// ModelFilePath is path to model file for Casbin.
 	// Optional. Default: "./model.conf".
 	ModelFilePath string
@@ -48,12 +50,19 @@ func New(config ...Config) *CasbinMiddleware {
 		cfg = config[0]
 	}
 
-	if cfg.ModelFilePath == "" {
-		cfg.ModelFilePath = "./model.conf"
-	}
+	if cfg.Enforcer == nil {
+		if cfg.ModelFilePath == "" {
+			cfg.ModelFilePath = "./model.conf"
+		}
 
-	if cfg.PolicyAdapter == nil {
-		cfg.PolicyAdapter = fileadapter.NewAdapter("./policy.csv")
+		if cfg.PolicyAdapter == nil {
+			cfg.PolicyAdapter = fileadapter.NewAdapter("./policy.csv")
+		}
+
+		enforcer, err := casbin.NewEnforcer(cfg.ModelFilePath, cfg.PolicyAdapter)
+		if err != nil {
+			log.Fatalf("Fiber: Casbin middleware error -> %v", err)
+		}
 	}
 
 	if cfg.Lookup == nil {
@@ -70,11 +79,6 @@ func New(config ...Config) *CasbinMiddleware {
 		cfg.Forbidden = func(c *fiber.Ctx) {
 			c.SendStatus(fiber.StatusForbidden)
 		}
-	}
-
-	enforcer, err := casbin.NewEnforcer(cfg.ModelFilePath, cfg.PolicyAdapter)
-	if err != nil {
-		log.Fatalf("Fiber: Casbin middleware error -> %v", err)
 	}
 
 	return &CasbinMiddleware{
