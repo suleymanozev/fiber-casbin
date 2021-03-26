@@ -12,7 +12,6 @@ import (
 
 // Config holds the configuration for the middleware
 type Config struct {
-	Enforcer      *casbin.Enforcer
 
 	// ModelFilePath is path to model file for Casbin.
 	// Optional. Default: "./model.conf".
@@ -21,6 +20,10 @@ type Config struct {
 	// PolicyAdapter is an interface for different persistent providers.
 	// Optional. Default: fileadapter.NewAdapter("./policy.csv").
 	PolicyAdapter persist.Adapter
+
+	// Enforcer is an enforcer. If you want to use your own enforcer.
+	// Optional. Default: nil
+	Enforcer      *casbin.Enforcer
 
 	// Lookup is a function that is used to look up current subject.
 	// An empty string is considered as unauthenticated user.
