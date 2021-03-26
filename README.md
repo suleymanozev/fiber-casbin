@@ -4,7 +4,7 @@ Casbin middleware for Fiber
 ### Install
 ```
 go get -u github.com/gofiber/fiber
-go get -u github.com/arsmn/fiber-casbin
+go get -u github.com/suleymanozev/fiber-casbin
 ```
 
 ### Signature
@@ -28,7 +28,7 @@ package main
 
 import (
   "github.com/gofiber/fiber"
-  "github.com/arsmn/fiber-casbin"
+  "github.com/suleymanozev/fiber-casbin"
   "github.com/casbin/mysql-adapter"
 )
 
@@ -61,7 +61,7 @@ package main
 
 import (
   "github.com/gofiber/fiber"
-  "github.com/arsmn/fiber-casbin"
+  "github.com/suleymanozev/fiber-casbin"
   "github.com/casbin/mysql-adapter"
 )
 
@@ -91,7 +91,7 @@ package main
 
 import (
   "github.com/gofiber/fiber"
-  "github.com/arsmn/fiber-casbin"
+  "github.com/suleymanozev/fiber-casbin"
   "github.com/casbin/mysql-adapter"
 )
 
