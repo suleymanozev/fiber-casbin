@@ -63,6 +63,7 @@ func New(config ...Config) *CasbinMiddleware {
 		if err != nil {
 			log.Fatalf("Fiber: Casbin middleware error -> %v", err)
 		}
+		cfg.Enforcer = enforcer
 	}
 
 	if cfg.Lookup == nil {
@@ -83,7 +84,6 @@ func New(config ...Config) *CasbinMiddleware {
 
 	return &CasbinMiddleware{
 		config:   cfg,
-		enforcer: enforcer,
 	}
 }
 
@@ -158,7 +158,7 @@ func (cm *CasbinMiddleware) RequiresPermissions(permissions []string, opts ...fu
 		if options.ValidationRule == matchAll {
 			for _, permission := range permissions {
 				vals := append([]string{sub}, options.PermissionParser(permission)...)
-				if ok, err := cm.enforcer.Enforce(convertToInterface(vals)...); err != nil {
+				if ok, err := cm.config.Enforcer.Enforce(convertToInterface(vals)...); err != nil {
 					c.SendStatus(fiber.StatusInternalServerError)
 					return
 				} else if !ok {
@@ -171,7 +171,7 @@ func (cm *CasbinMiddleware) RequiresPermissions(permissions []string, opts ...fu
 		} else if options.ValidationRule == atLeastOne {
 			for _, permission := range permissions {
 				vals := append([]string{sub}, options.PermissionParser(permission)...)
-				if ok, err := cm.enforcer.Enforce(convertToInterface(vals)...); err != nil {
+				if ok, err := cm.config.Enforcer.Enforce(convertToInterface(vals)...); err != nil {
 					c.SendStatus(fiber.StatusInternalServerError)
 					return
 				} else if ok {
@@ -199,7 +199,7 @@ func (cm *CasbinMiddleware) RoutePermission() func(*fiber.Ctx) {
 			return
 		}
 
-		if ok, err := cm.enforcer.Enforce(sub, c.Path(), c.Method()); err != nil {
+		if ok, err := cm.config.Enforcer.Enforce(sub, c.Path(), c.Method()); err != nil {
 			c.SendStatus(fiber.StatusInternalServerError)
 			return
 		} else if !ok {
@@ -236,7 +236,7 @@ func (cm *CasbinMiddleware) RequiresRoles(roles []string, opts ...func(o *Option
 			return
 		}
 
-		userRoles, err := cm.enforcer.GetRolesForUser(sub)
+		userRoles, err := cm.config.Enforcer.GetRolesForUser(sub)
 		if err != nil {
 			c.SendStatus(fiber.StatusInternalServerError)
 			return
